@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\V1\MerchantController;
 use App\Http\Controllers\Api\V1\ProductController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\V1\Student\WalletController;
 
 
 /*
@@ -45,6 +46,22 @@ Route::prefix('v1')->group(function () {
                 ],
             ]);
         });
+
+        Route::prefix('student')
+            ->middleware('role:student')
+            ->group(function () {
+
+                Route::get('/wallet', [
+                    WalletController::class,
+                    'show',
+                ]);
+
+                Route::get('/wallet/transactions', [
+                    WalletController::class,
+                    'transactions',
+                ]);
+
+    });
 
     });
 
