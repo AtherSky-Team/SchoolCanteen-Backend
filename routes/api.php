@@ -1,11 +1,56 @@
 <?php
 
+use App\Http\Controllers\Api\V1\MerchantController;
+use App\Http\Controllers\Api\V1\ProductController;
 use Illuminate\Support\Facades\Route;
+
+
+/*
+|--------------------------------------------------------------------------
+| Health Check
+|--------------------------------------------------------------------------
+*/
 
 Route::get('/health', function () {
     return response()->json([
         'success' => true,
-        'message' => 'SakuSekolah API is running',
+        'message' => 'SchoolCanteen API is running',
         'version' => 'v1',
+    ]);
+});
+
+
+/*
+|--------------------------------------------------------------------------
+| API Version 1
+|--------------------------------------------------------------------------
+*/
+
+Route::prefix('v1')->group(function () {
+
+    /*
+    |--------------------------------------------------------------------------
+    | Public Catalog
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get('/products', [
+        ProductController::class,
+        'index',
+    ]);
+
+    Route::get('/products/{product}', [
+        ProductController::class,
+        'show',
+    ]);
+
+    Route::get('/merchants', [
+        MerchantController::class,
+        'index',
+    ]);
+
+    Route::get('/merchants/{merchant}', [
+        MerchantController::class,
+        'show',
     ]);
 });
