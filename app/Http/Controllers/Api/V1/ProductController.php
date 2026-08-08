@@ -36,7 +36,7 @@ class ProductController extends Controller
 
             ->when(
                 $request->filled('merchant_id'),
-                fn ($query) =>
+                fn($query) =>
                 $query->where(
                     'merchant_id',
                     $request->merchant_id
@@ -45,11 +45,26 @@ class ProductController extends Controller
 
             ->when(
                 $request->filled('category_id'),
-                fn ($query) =>
+                fn($query) =>
                 $query->where(
                     'category_id',
                     $request->category_id
                 )
+            )
+
+            ->when(
+                $request->filled('merchant_type'),
+                function ($query) use ($request) {
+                    $query->whereHas(
+                        'merchant',
+                        function ($merchantQuery) use ($request) {
+                            $merchantQuery->where(
+                                'type',
+                                $request->merchant_type
+                            );
+                        }
+                    );
+                }
             )
 
             ->latest()
