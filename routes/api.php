@@ -2,9 +2,10 @@
 
 use App\Http\Controllers\Api\V1\MerchantController;
 use App\Http\Controllers\Api\V1\ProductController;
+use App\Http\Controllers\Api\V1\Student\OrderController;
+use App\Http\Controllers\Api\V1\Student\WalletController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\V1\Student\WalletController;
 
 
 /*
@@ -29,42 +30,6 @@ Route::get('/health', function () {
 */
 
 Route::prefix('v1')->group(function () {
-
-    Route::middleware('supabase.auth')->group(function () {
-
-        Route::get('/me', function (\Illuminate\Http\Request $request) {
-
-            $profile = $request->attributes->get('profile');
-
-            return response()->json([
-                'success' => true,
-                'data' => [
-                    'id' => $profile->id,
-                    'name' => $profile->name,
-                    'phone' => $profile->phone,
-                    'avatar_url' => $profile->avatar_url,
-                    'role' => $profile->role,
-                ],
-            ]);
-        });
-
-        Route::prefix('student')
-            ->middleware('role:student')
-            ->group(function () {
-
-                Route::get('/wallet', [
-                    WalletController::class,
-                    'show',
-                ]);
-
-                Route::get('/wallet/transactions', [
-                    WalletController::class,
-                    'transactions',
-                ]);
-
-    });
-
-    });
 
     /*
     |--------------------------------------------------------------------------
@@ -134,13 +99,27 @@ Route::prefix('v1')->group(function () {
             ->middleware('role:student')
             ->group(function () {
 
-                Route::get('/test', function (Request $request) {
+                Route::get('/test', function () {
                     return response()->json([
                         'success' => true,
                         'message' => 'Student access granted.',
                     ]);
                 });
 
+                Route::get('/wallet', [
+                    WalletController::class,
+                    'show',
+                ]);
+
+                Route::get('/wallet/transactions', [
+                    WalletController::class,
+                    'transactions',
+                ]);
+
+                Route::post('/orders', [
+                    OrderController::class,
+                    'store',
+                ]);
             });
 
 
@@ -160,7 +139,6 @@ Route::prefix('v1')->group(function () {
                         'message' => 'Merchant access granted.',
                     ]);
                 });
-
             });
 
 
@@ -180,7 +158,6 @@ Route::prefix('v1')->group(function () {
                         'message' => 'Admin access granted.',
                     ]);
                 });
-
             });
     });
 });
