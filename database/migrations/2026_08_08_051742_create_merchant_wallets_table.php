@@ -1,4 +1,4 @@
-php artisan make:migration create_merchant_wallet_transactions_table<?php
+<?php
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;

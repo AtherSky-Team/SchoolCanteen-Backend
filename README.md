@@ -231,3 +231,7 @@ resources/
 ---
 
 <p align="center">Made with ❤️ for PKL</p>
+
+$merchant->id; 869e3adb-3b07-42a0-9453-59219f50dd3f
+$product->id; 627672c8-1d75-4083-9b0c-3a06a9326d18
+$slot?->id; a94e8dbf-3ab9-4a74-8809-340124e4323b
