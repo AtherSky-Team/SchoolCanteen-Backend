@@ -99,6 +99,21 @@ Route::prefix('v1')->group(function () {
             ->middleware('role:student')
             ->group(function () {
 
+            Route::get('/orders', [
+                OrderController::class,
+                'index',
+            ]);
+
+            Route::get('/orders/{order}', [
+                OrderController::class,
+                'show',
+            ]);
+
+            Route::post('/orders', [
+                OrderController::class,
+                'store',
+            ]);
+
                 Route::get('/test', function () {
                     return response()->json([
                         'success' => true,
