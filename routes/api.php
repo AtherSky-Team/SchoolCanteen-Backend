@@ -104,6 +104,11 @@ Route::prefix('v1')->group(function () {
                 'index',
             ]);
 
+            Route::get('/orders/{order}', [
+                OrderController::class,
+                'show',
+            ]);
+
             Route::post('/orders', [
                 OrderController::class,
                 'store',

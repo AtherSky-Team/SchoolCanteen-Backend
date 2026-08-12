@@ -42,6 +42,36 @@ class OrderController extends Controller
                 'success' => true,
             ]);
     }
+
+    public function show(Request $request, string $order)
+    {
+        $profile = $request->attributes->get('profile');
+
+        $studentOrder = Order::query()
+            ->where('user_id', $profile->id)
+            ->whereKey($order)
+            ->with([
+                'merchant',
+                'pickupSlot',
+                'pickup',
+                'items',
+                'escrow',
+            ])
+            ->first();
+
+        if (!$studentOrder) {
+            $this->fail(
+                'ORDER_NOT_FOUND',
+                'Pesanan tidak ditemukan.',
+                404
+            );
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => new OrderResource($studentOrder),
+        ]);
+    }
     
     public function store(StoreOrderRequest $request)
     {
