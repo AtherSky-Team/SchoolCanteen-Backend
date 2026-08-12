@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\V1\PickupSlotController;
 use App\Http\Controllers\Api\V1\MerchantController;
 use App\Http\Controllers\Api\V1\ProductController;
 use App\Http\Controllers\Api\V1\Student\OrderController;
@@ -57,6 +58,10 @@ Route::prefix('v1')->group(function () {
         'show',
     ]);
 
+    Route::get('/merchants/{merchant}/pickup-slots', [
+        PickupSlotController::class,
+        'index',
+    ]);
 
     /*
     |--------------------------------------------------------------------------
