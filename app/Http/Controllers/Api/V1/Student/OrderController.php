@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api\V1\Student;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\Student\StoreOrderRequest;
+use App\Http\Resources\OrderResource;
+use Illuminate\Http\Request;
 use App\Models\EscrowTransaction;
 use App\Models\Merchant;
 use App\Models\MerchantWallet;
@@ -21,6 +23,26 @@ use Illuminate\Support\Str;
 
 class OrderController extends Controller
 {
+    public function index(Request $request)
+    {
+        $profile = $request->attributes->get('profile');
+
+        $orders = Order::query()
+            ->where('user_id', $profile->id)
+            ->with([
+                'merchant',
+                'pickupSlot',
+                'pickup',
+            ])
+            ->latest()
+            ->paginate(10);
+
+        return OrderResource::collection($orders)
+            ->additional([
+                'success' => true,
+            ]);
+    }
+    
     public function store(StoreOrderRequest $request)
     {
         $profile = $request->attributes->get('profile');
