@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\V1\PickupSlotController;
 use App\Http\Controllers\Api\V1\MerchantController;
 use App\Http\Controllers\Api\V1\ProductController;
 use App\Http\Controllers\Api\V1\Student\OrderController;
+use App\Http\Controllers\Api\V1\Merchant\OrderController as MerchantOrderController;
 use App\Http\Controllers\Api\V1\Student\WalletController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -152,6 +153,21 @@ Route::prefix('v1')->group(function () {
         Route::prefix('merchant')
             ->middleware('role:merchant')
             ->group(function () {
+
+                Route::get('/orders', [
+                    MerchantOrderController::class,
+                    'index',
+                ]);
+
+                Route::get('/orders/{order}', [
+                    MerchantOrderController::class,
+                    'show',
+                ]);
+
+                Route::patch('/orders/{order}/status', [
+                    MerchantOrderController::class,
+                    'updateStatus',
+                ]);
 
                 Route::get('/test', function () {
                     return response()->json([
