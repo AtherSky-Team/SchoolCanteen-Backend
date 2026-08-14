@@ -7,6 +7,9 @@ use App\Http\Controllers\Api\V1\Student\OrderController;
 use App\Http\Controllers\Api\V1\Merchant\OrderController as MerchantOrderController;
 use App\Http\Controllers\Api\V1\Merchant\ProductionSummaryController;
 use App\Http\Controllers\Api\V1\Merchant\PickupController as MerchantPickupController;
+use App\Http\Controllers\Api\V1\Merchant\WalletController as MerchantWalletController;
+use App\Http\Controllers\Api\V1\Merchant\PaymentAccountController as MerchantPaymentAccountController;
+use App\Http\Controllers\Api\V1\Merchant\WithdrawalController as MerchantWithdrawalController;
 use App\Http\Controllers\Api\V1\Student\WalletController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -180,6 +183,36 @@ Route::prefix('v1')->group(function () {
                         MerchantPickupController::class,
                         'verify',
                     ]);
+
+                Route::get('/wallet', [
+                    MerchantWalletController::class,
+                    'show',
+                ]);
+
+                Route::get('/wallet/transactions', [
+                    MerchantWalletController::class,
+                    'transactions',
+                ]);
+
+                Route::get('/payment-accounts', [
+                    MerchantPaymentAccountController::class,
+                    'index',
+                ]);
+
+                Route::post('/payment-accounts', [
+                    MerchantPaymentAccountController::class,
+                    'store',
+                ]);
+
+                Route::get('/withdrawals', [
+                    MerchantWithdrawalController::class,
+                    'index',
+                ]);
+
+                Route::post('/withdrawals', [
+                    MerchantWithdrawalController::class,
+                    'store',
+                ]);
 
                 Route::get('/test', function () {
                     return response()->json([
