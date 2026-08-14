@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\V1\MerchantController;
 use App\Http\Controllers\Api\V1\ProductController;
 use App\Http\Controllers\Api\V1\Student\OrderController;
 use App\Http\Controllers\Api\V1\Merchant\OrderController as MerchantOrderController;
+use App\Http\Controllers\Api\V1\Merchant\ProductionSummaryController;
 use App\Http\Controllers\Api\V1\Student\WalletController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -167,6 +168,11 @@ Route::prefix('v1')->group(function () {
                 Route::patch('/orders/{order}/status', [
                     MerchantOrderController::class,
                     'updateStatus',
+                ]);
+
+                Route::get('/production-summary', [
+                    ProductionSummaryController::class,
+                    'index',
                 ]);
 
                 Route::get('/test', function () {
