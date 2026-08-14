@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\V1\PickupSlotController;
 use App\Http\Controllers\Api\V1\MerchantController;
 use App\Http\Controllers\Api\V1\ProductController;
+use App\Http\Controllers\Api\V1\MidtransWebhookController;
 use App\Http\Controllers\Api\V1\Student\OrderController;
 use App\Http\Controllers\Api\V1\Merchant\OrderController as MerchantOrderController;
 use App\Http\Controllers\Api\V1\Merchant\ProductionSummaryController;
@@ -11,6 +12,7 @@ use App\Http\Controllers\Api\V1\Merchant\WalletController as MerchantWalletContr
 use App\Http\Controllers\Api\V1\Merchant\PaymentAccountController as MerchantPaymentAccountController;
 use App\Http\Controllers\Api\V1\Merchant\WithdrawalController as MerchantWithdrawalController;
 use App\Http\Controllers\Api\V1\Student\WalletController;
+use App\Http\Controllers\Api\V1\Student\TopUpController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -67,6 +69,11 @@ Route::prefix('v1')->group(function () {
     Route::get('/merchants/{merchant}/pickup-slots', [
         PickupSlotController::class,
         'index',
+    ]);
+
+    Route::post('/payments/midtrans/notification', [
+        MidtransWebhookController::class,
+        'handle',
     ]);
 
     /*
@@ -141,7 +148,10 @@ Route::prefix('v1')->group(function () {
                     WalletController::class,
                     'transactions',
                 ]);
-
+            Route::post('/wallet/top-ups', [
+                TopUpController::class,
+                'store',
+            ]);
                 Route::post('/orders', [
                     OrderController::class,
                     'store',
