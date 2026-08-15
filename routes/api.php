@@ -160,10 +160,6 @@ Route::prefix('v1')->group(function () {
                 TopUpController::class,
                 'store',
             ]);
-                Route::post('/orders', [
-                    OrderController::class,
-                    'store',
-                ]);
             });
 
 

@@ -57,7 +57,16 @@ class PickupController extends Controller
             |--------------------------------------------------------------------------
             */
 
-            $pickupQuery = Pickup::query();
+            $pickupQuery = Pickup::query()
+                ->whereHas(
+                    'order',
+                    function ($query) use ($merchant) {
+                        $query->where(
+                            'merchant_id',
+                            $merchant->id
+                        );
+                    }
+                );
 
             if (!empty($data['pickup_token'])) {
                 $pickupQuery->where(
