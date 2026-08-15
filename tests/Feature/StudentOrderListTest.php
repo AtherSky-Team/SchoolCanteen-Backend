@@ -517,6 +517,10 @@ class StudentOrderListTest extends TestCase
                 'Nasi Goreng'
             )
             ->assertJsonPath(
+                'data.0.items.0.product_image_url',
+                'https://example.test/nasi-goreng.jpg'
+            )
+            ->assertJsonPath(
                 'data.0.items.0.quantity',
                 1
             )
