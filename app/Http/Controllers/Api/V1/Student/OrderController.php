@@ -33,6 +33,8 @@ class OrderController extends Controller
                 'merchant',
                 'pickupSlot',
                 'pickup',
+                'items',
+                'escrow',
             ])
             ->latest()
             ->paginate(10);
