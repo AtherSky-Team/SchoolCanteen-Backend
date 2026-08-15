@@ -7,7 +7,7 @@ use App\Models\EscrowTransaction;
 use App\Models\Merchant;
 use App\Models\Order;
 use App\Models\PaymentTransaction;
-use App\Models\StudentProfile;
+use App\Models\Profile;
 use App\Models\WithdrawalRequest;
 use Illuminate\Http\Request;
 
@@ -21,7 +21,9 @@ class DashboardController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $students = StudentProfile::query()->count();
+        $students = Profile::query()
+            ->where('role', 'student')
+            ->count();
 
         $merchants = Merchant::query()->count();
 
