@@ -4,6 +4,12 @@ use App\Http\Controllers\Api\V1\PickupSlotController;
 use App\Http\Controllers\Api\V1\MerchantController;
 use App\Http\Controllers\Api\V1\ProductController;
 use App\Http\Controllers\Api\V1\MidtransWebhookController;
+use App\Http\Controllers\Api\V1\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Api\V1\Admin\MerchantController as AdminMerchantController;
+use App\Http\Controllers\Api\V1\Admin\StudentController as AdminStudentController;
+use App\Http\Controllers\Api\V1\Admin\TransactionController as AdminTransactionController;
+use App\Http\Controllers\Api\V1\Admin\WithdrawalController as AdminWithdrawalController;
+use App\Http\Controllers\Api\V1\Admin\ReportController as AdminReportController;
 use App\Http\Controllers\Api\V1\Student\OrderController;
 use App\Http\Controllers\Api\V1\Merchant\OrderController as MerchantOrderController;
 use App\Http\Controllers\Api\V1\Merchant\ProductionSummaryController;
@@ -243,10 +249,95 @@ Route::prefix('v1')->group(function () {
             ->middleware('role:admin')
             ->group(function () {
 
+               Route::get('/dashboard', [
+                        AdminDashboardController::class,
+                        'index',
+                    ]);
+
+                Route::get('/merchants', [
+                    AdminMerchantController::class,
+                    'index',
+                ]);
+
+                Route::get('/merchants/{merchant}', [
+                    AdminMerchantController::class,
+                    'show',
+                ]);
+
+                Route::patch('/merchants/{merchant}/status', [
+                    AdminMerchantController::class,
+                    'updateStatus',
+                ]);
+
+                Route::get('/students', [
+                    AdminStudentController::class,
+                    'index',
+                ]);
+
+                Route::get('/students/{student}', [
+                    AdminStudentController::class,
+                    'show',
+                ]);
+
+                Route::get('/transactions/student', [
+                    AdminTransactionController::class,
+                    'studentIndex',
+                ]);
+
+                Route::get('/transactions/student/{transaction}', [
+                    AdminTransactionController::class,
+                    'studentShow',
+                ]);
+
+                Route::get('/transactions/merchant', [
+                    AdminTransactionController::class,
+                    'merchantIndex',
+                ]);
+
+                Route::get('/transactions/merchant/{transaction}', [
+                    AdminTransactionController::class,
+                    'merchantShow',
+                ]);
+
+                Route::get('/withdrawals', [
+                    AdminWithdrawalController::class,
+                    'index',
+                ]);
+
+                Route::get('/withdrawals/{withdrawal}', [
+                    AdminWithdrawalController::class,
+                    'show',
+                ])->whereUuid('withdrawal');
+
+                Route::patch('/withdrawals/{withdrawal}/approve', [
+                    AdminWithdrawalController::class,
+                    'approve',
+                ])->whereUuid('withdrawal');
+
+                Route::patch('/withdrawals/{withdrawal}/process', [
+                    AdminWithdrawalController::class,
+                    'process',
+                ])->whereUuid('withdrawal');
+
+                Route::patch('/withdrawals/{withdrawal}/complete', [
+                    AdminWithdrawalController::class,
+                    'complete',
+                ])->whereUuid('withdrawal');
+
+                Route::patch('/withdrawals/{withdrawal}/reject', [
+                    AdminWithdrawalController::class,
+                    'reject',
+                ])->whereUuid('withdrawal');
+
+                Route::get('/reports/summary', [
+                    AdminReportController::class,
+                    'summary',
+                ]);
+
                 Route::get('/test', function () {
-                    return response()->json([
-                        'success' => true,
-                        'message' => 'Admin access granted.',
+                        return response()->json([
+                            'success' => true,
+                            'message' => 'Admin access granted.',
                     ]);
                 });
             });
