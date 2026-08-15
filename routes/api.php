@@ -17,6 +17,8 @@ use App\Http\Controllers\Api\V1\Merchant\PickupController as MerchantPickupContr
 use App\Http\Controllers\Api\V1\Merchant\WalletController as MerchantWalletController;
 use App\Http\Controllers\Api\V1\Merchant\PaymentAccountController as MerchantPaymentAccountController;
 use App\Http\Controllers\Api\V1\Merchant\WithdrawalController as MerchantWithdrawalController;
+use App\Http\Controllers\Api\V1\Merchant\ProductController as MerchantProductController;
+use App\Http\Controllers\Api\V1\Merchant\CategoryController as MerchantCategoryController;
 use App\Http\Controllers\Api\V1\Student\WalletController;
 use App\Http\Controllers\Api\V1\Student\TopUpController;
 use Illuminate\Http\Request;
@@ -229,6 +231,31 @@ Route::prefix('v1')->group(function () {
                     MerchantWithdrawalController::class,
                     'store',
                 ]);
+
+                Route::get('/products', [
+                    MerchantProductController::class,
+                    'index',
+                ]);
+
+                Route::post('/products', [
+                    MerchantProductController::class,
+                    'store',
+                ]);
+
+                Route::get('/categories', [
+                    MerchantCategoryController::class,
+                    'index',
+                ]);
+
+                Route::patch('/products/{product}', [
+                    MerchantProductController::class,
+                    'update',
+                ])->whereUuid('product');
+
+                Route::delete('/products/{product}', [
+                    MerchantProductController::class,
+                    'destroy',
+                ])->whereUuid('product');
 
                 Route::get('/test', function () {
                     return response()->json([
