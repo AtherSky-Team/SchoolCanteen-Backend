@@ -19,6 +19,8 @@ use App\Http\Controllers\Api\V1\Merchant\PaymentAccountController as MerchantPay
 use App\Http\Controllers\Api\V1\Merchant\WithdrawalController as MerchantWithdrawalController;
 use App\Http\Controllers\Api\V1\Merchant\ProductController as MerchantProductController;
 use App\Http\Controllers\Api\V1\Merchant\CategoryController as MerchantCategoryController;
+use App\Http\Controllers\Api\V1\Student\DashboardController as StudentDashboardController;
+use App\Http\Controllers\Api\V1\Student\ProfileController as StudentProfileController;
 use App\Http\Controllers\Api\V1\Student\WalletController;
 use App\Http\Controllers\Api\V1\Student\TopUpController;
 use Illuminate\Http\Request;
@@ -156,6 +158,17 @@ Route::prefix('v1')->group(function () {
                     WalletController::class,
                     'transactions',
                 ]);
+
+            Route::get('/dashboard', [
+                StudentDashboardController::class,
+                'index',
+            ]);
+
+            Route::get('/profile', [
+                StudentProfileController::class,
+                'show',
+            ]);
+
             Route::post('/wallet/top-ups', [
                 TopUpController::class,
                 'store',
