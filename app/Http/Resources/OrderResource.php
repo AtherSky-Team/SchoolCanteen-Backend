@@ -51,6 +51,8 @@ class OrderResource extends JsonResource
                             'id' => $item->id,
                             'product_id' => $item->product_id,
                             'product_name' => $item->product_name,
+                            'product_image_url' =>
+                                $item->product_image_url,
                             'unit_price' => (int) $item->unit_price,
                             'quantity' => (int) $item->quantity,
                             'subtotal' => (int) $item->subtotal,
