@@ -62,7 +62,7 @@ Route::prefix('v1')->group(function () {
     Route::get('/products/{product}', [
         ProductController::class,
         'show',
-    ]);
+    ])->whereUuid('product');
 
     Route::get('/merchants', [
         MerchantController::class,
@@ -72,12 +72,12 @@ Route::prefix('v1')->group(function () {
     Route::get('/merchants/{merchant}', [
         MerchantController::class,
         'show',
-    ]);
+    ])->whereUuid('merchant');
 
     Route::get('/merchants/{merchant}/pickup-slots', [
         PickupSlotController::class,
         'index',
-    ]);
+    ])->whereUuid('merchant');
 
     Route::post('/payments/midtrans/notification', [
         MidtransWebhookController::class,
@@ -133,7 +133,7 @@ Route::prefix('v1')->group(function () {
             Route::get('/orders/{order}', [
                 OrderController::class,
                 'show',
-            ]);
+            ])->whereUuid('order');
 
             Route::post('/orders', [
                 OrderController::class,
@@ -185,12 +185,12 @@ Route::prefix('v1')->group(function () {
                 Route::get('/orders/{order}', [
                     MerchantOrderController::class,
                     'show',
-                ]);
+                ])->whereUuid('order');
 
                 Route::patch('/orders/{order}/status', [
                     MerchantOrderController::class,
                     'updateStatus',
-                ]);
+                ])->whereUuid('order');
 
                 Route::get('/production-summary', [
                     ProductionSummaryController::class,
@@ -289,12 +289,12 @@ Route::prefix('v1')->group(function () {
                 Route::get('/merchants/{merchant}', [
                     AdminMerchantController::class,
                     'show',
-                ]);
+                ])->whereUuid('merchant');
 
                 Route::patch('/merchants/{merchant}/status', [
                     AdminMerchantController::class,
                     'updateStatus',
-                ]);
+                ])->whereUuid('merchant');
 
                 Route::get('/students', [
                     AdminStudentController::class,
@@ -304,7 +304,7 @@ Route::prefix('v1')->group(function () {
                 Route::get('/students/{student}', [
                     AdminStudentController::class,
                     'show',
-                ]);
+                ])->whereUuid('student');
 
                 Route::get('/transactions/student', [
                     AdminTransactionController::class,
@@ -314,7 +314,7 @@ Route::prefix('v1')->group(function () {
                 Route::get('/transactions/student/{transaction}', [
                     AdminTransactionController::class,
                     'studentShow',
-                ]);
+                ])->whereUuid('transaction');
 
                 Route::get('/transactions/merchant', [
                     AdminTransactionController::class,
@@ -324,7 +324,7 @@ Route::prefix('v1')->group(function () {
                 Route::get('/transactions/merchant/{transaction}', [
                     AdminTransactionController::class,
                     'merchantShow',
-                ]);
+                ])->whereUuid('transaction');
 
                 Route::get('/withdrawals', [
                     AdminWithdrawalController::class,
