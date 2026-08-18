@@ -61,6 +61,11 @@ Route::prefix('v1')->group(function () {
         'index',
     ]);
 
+    Route::post('/products/resolve', [
+        ProductController::class,
+        'resolve',
+    ]);
+
     Route::get('/products/{product}', [
         ProductController::class,
         'show',
