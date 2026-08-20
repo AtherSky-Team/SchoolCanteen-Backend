@@ -23,6 +23,7 @@
 /storage/*.key
 /storage/pail
 /vendor
+/backup-supabase
 _ide_helper.php
 Homestead.json
 Homestead.yaml
