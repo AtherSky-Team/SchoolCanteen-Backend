@@ -41,4 +41,9 @@ class WalletTransaction extends Model
     {
         return $this->hasOne(PaymentTransaction::class);
     }
+
+    public function referencedOrder(): BelongsTo
+    {
+        return $this->belongsTo(Order::class, 'reference_id');
+    }
 }

@@ -24,6 +24,24 @@ class AdminStudentTransactionResource extends JsonResource
                 }
             ),
 
+            'merchant' => $this->whenLoaded(
+                'referencedOrder',
+                function () {
+                    if (
+                        strtolower((string) $this->reference_type) !== 'order' ||
+                        ! $this->referencedOrder?->merchant
+                    ) {
+                        return null;
+                    }
+
+                    return [
+                        'id' => $this->referencedOrder->merchant->id,
+                        'name' => $this->referencedOrder->merchant->name,
+                        'type' => $this->referencedOrder->merchant->type,
+                    ];
+                }
+            ),
+
             'type' => $this->type,
             'direction' => $this->direction,
 

@@ -7,112 +7,22 @@ use App\Http\Resources\AdminMerchantTransactionResource;
 use App\Http\Resources\AdminStudentTransactionResource;
 use App\Models\MerchantWalletTransaction;
 use App\Models\WalletTransaction;
+use Carbon\CarbonImmutable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 
 class TransactionController extends Controller
 {
     public function studentIndex(Request $request)
     {
-        $query = WalletTransaction::query()
+        $query = $this->studentQuery($request);
+
+        $transactions = $query
             ->with([
                 'wallet.user:id,name',
                 'paymentTransaction',
-            ]);
-
-        /*
-        |--------------------------------------------------------------------------
-        | Search Student
-        |--------------------------------------------------------------------------
-        */
-
-        if ($request->filled('search')) {
-            $search = trim(
-                (string) $request->query('search')
-            );
-
-            $query->whereHas(
-                'wallet.user',
-                function ($userQuery) use ($search) {
-                    $userQuery->where(
-                        'name',
-                        'ilike',
-                        '%' . $search . '%'
-                    );
-                }
-            );
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Student Filter
-        |--------------------------------------------------------------------------
-        */
-
-        if ($request->filled('student_id')) {
-            $studentId =
-                $request->query('student_id');
-
-            $query->whereHas(
-                'wallet',
-                function ($walletQuery) use ($studentId) {
-                    $walletQuery->where(
-                        'user_id',
-                        $studentId
-                    );
-                }
-            );
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Transaction Filters
-        |--------------------------------------------------------------------------
-        */
-
-        if ($request->filled('type')) {
-            $query->where(
-                'type',
-                $request->query('type')
-            );
-        }
-
-        if ($request->filled('direction')) {
-            $query->where(
-                'direction',
-                $request->query('direction')
-            );
-        }
-
-        if ($request->filled('status')) {
-            $query->where(
-                'status',
-                $request->query('status')
-            );
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Date Filters
-        |--------------------------------------------------------------------------
-        */
-
-        if ($request->filled('date_from')) {
-            $query->whereDate(
-                'created_at',
-                '>=',
-                $request->query('date_from')
-            );
-        }
-
-        if ($request->filled('date_to')) {
-            $query->whereDate(
-                'created_at',
-                '<=',
-                $request->query('date_to')
-            );
-        }
-
-        $transactions = $query
+                'referencedOrder.merchant:id,name,type',
+            ])
             ->latest()
             ->paginate(20)
             ->withQueryString();
@@ -124,6 +34,36 @@ class TransactionController extends Controller
         ]);
     }
 
+    public function stats()
+    {
+        $stats = WalletTransaction::query()
+            ->selectRaw('COUNT(*) as total_transactions')
+            ->selectRaw(
+                "SUM(CASE WHEN LOWER(status) = 'completed' THEN 1 ELSE 0 END) as completed_transactions"
+            )
+            ->selectRaw(
+                "SUM(CASE WHEN LOWER(status) = 'pending' THEN 1 ELSE 0 END) as pending_transactions"
+            )
+            ->selectRaw(
+                "COALESCE(SUM(CASE WHEN LOWER(type) IN ('payment', 'topup', 'top_up') THEN amount ELSE 0 END), 0) as transaction_value"
+            )
+            ->first();
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'total_transactions' =>
+                    (int) ($stats?->total_transactions ?? 0),
+                'completed_transactions' =>
+                    (int) ($stats?->completed_transactions ?? 0),
+                'pending_transactions' =>
+                    (int) ($stats?->pending_transactions ?? 0),
+                'transaction_value' =>
+                    (int) ($stats?->transaction_value ?? 0),
+            ],
+        ]);
+    }
+
     public function studentShow(string $transaction)
     {
         $walletTransaction =
@@ -131,17 +71,16 @@ class TransactionController extends Controller
                 ->with([
                     'wallet.user:id,name',
                     'paymentTransaction',
+                    'referencedOrder.merchant:id,name,type',
                 ])
                 ->find($transaction);
 
-        if (!$walletTransaction) {
+        if (! $walletTransaction) {
             return response()->json([
                 'success' => false,
-
                 'error' => [
                     'code' =>
                         'STUDENT_TRANSACTION_NOT_FOUND',
-
                     'message' =>
                         'Transaksi student tidak ditemukan.',
                 ],
@@ -150,7 +89,6 @@ class TransactionController extends Controller
 
         return response()->json([
             'success' => true,
-
             'data' =>
                 new AdminStudentTransactionResource(
                     $walletTransaction
@@ -165,12 +103,6 @@ class TransactionController extends Controller
                 ->with([
                     'merchantWallet.merchant:id,name,type',
                 ]);
-
-        /*
-        |--------------------------------------------------------------------------
-        | Search Merchant
-        |--------------------------------------------------------------------------
-        */
 
         if ($request->filled('search')) {
             $search = trim(
@@ -189,12 +121,6 @@ class TransactionController extends Controller
             );
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Merchant Filter
-        |--------------------------------------------------------------------------
-        */
-
         if ($request->filled('merchant_id')) {
             $merchantId =
                 $request->query('merchant_id');
@@ -209,12 +135,6 @@ class TransactionController extends Controller
                 }
             );
         }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Transaction Filters
-        |--------------------------------------------------------------------------
-        */
 
         if ($request->filled('type')) {
             $query->where(
@@ -237,27 +157,7 @@ class TransactionController extends Controller
             );
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Date Filters
-        |--------------------------------------------------------------------------
-        */
-
-        if ($request->filled('date_from')) {
-            $query->whereDate(
-                'created_at',
-                '>=',
-                $request->query('date_from')
-            );
-        }
-
-        if ($request->filled('date_to')) {
-            $query->whereDate(
-                'created_at',
-                '<=',
-                $request->query('date_to')
-            );
-        }
+        $this->applyDateRange($query, $request);
 
         $transactions = $query
             ->latest()
@@ -280,14 +180,12 @@ class TransactionController extends Controller
                 ])
                 ->find($transaction);
 
-        if (!$merchantTransaction) {
+        if (! $merchantTransaction) {
             return response()->json([
                 'success' => false,
-
                 'error' => [
                     'code' =>
                         'MERCHANT_TRANSACTION_NOT_FOUND',
-
                     'message' =>
                         'Transaksi merchant tidak ditemukan.',
                 ],
@@ -296,11 +194,109 @@ class TransactionController extends Controller
 
         return response()->json([
             'success' => true,
-
             'data' =>
                 new AdminMerchantTransactionResource(
                     $merchantTransaction
                 ),
         ]);
+    }
+
+    private function studentQuery(Request $request): Builder
+    {
+        $query = WalletTransaction::query();
+
+        if ($request->filled('search')) {
+            $search = trim(
+                (string) $request->query('search')
+            );
+
+            $query->whereHas(
+                'wallet.user',
+                function ($userQuery) use ($search) {
+                    $userQuery->where(
+                        'name',
+                        'ilike',
+                        '%' . $search . '%'
+                    );
+                }
+            );
+        }
+
+        if ($request->filled('student_id')) {
+            $studentId =
+                $request->query('student_id');
+
+            $query->whereHas(
+                'wallet',
+                function ($walletQuery) use ($studentId) {
+                    $walletQuery->where(
+                        'user_id',
+                        $studentId
+                    );
+                }
+            );
+        }
+
+        if ($request->filled('type')) {
+            $query->where(
+                'type',
+                $request->query('type')
+            );
+        }
+
+        if ($request->filled('direction')) {
+            $query->where(
+                'direction',
+                $request->query('direction')
+            );
+        }
+
+        if ($request->filled('status')) {
+            $query->where(
+                'status',
+                $request->query('status')
+            );
+        }
+
+        $this->applyDateRange($query, $request);
+
+        return $query;
+    }
+
+    private function applyDateRange(
+        Builder $query,
+        Request $request
+    ): void {
+        if ($request->filled('date_from')) {
+            $dateFrom = CarbonImmutable::createFromFormat(
+                '!Y-m-d',
+                (string) $request->query('date_from'),
+                'Asia/Jakarta'
+            );
+
+            if ($dateFrom !== false) {
+                $query->where(
+                    'created_at',
+                    '>=',
+                    $dateFrom->utc()
+                );
+            }
+        }
+
+        if ($request->filled('date_to')) {
+            $dateTo = CarbonImmutable::createFromFormat(
+                '!Y-m-d',
+                (string) $request->query('date_to'),
+                'Asia/Jakarta'
+            );
+
+            if ($dateTo !== false) {
+                $query->where(
+                    'created_at',
+                    '<',
+                    $dateTo->addDay()->utc()
+                );
+            }
+        }
     }
 }

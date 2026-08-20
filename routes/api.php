@@ -416,6 +416,11 @@ Route::prefix('v1')->group(function () {
                     'show',
                 ])->whereUuid('student');
 
+                Route::get('/transactions/stats', [
+                    AdminTransactionController::class,
+                    'stats',
+                ]);
+
                 Route::get('/transactions/student', [
                     AdminTransactionController::class,
                     'studentIndex',
