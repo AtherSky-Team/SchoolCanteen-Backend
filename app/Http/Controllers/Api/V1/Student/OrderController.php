@@ -762,6 +762,18 @@ class OrderController extends Controller
                     );
                 }
 
+                /*
+                 * Revalidate the slot inside the same transaction used for
+                 * checkout. The public slot list may have been loaded seconds
+                 * earlier, so frontend state is not a safe source of truth.
+                 */
+                if ($pickupSlot->end_at <= now()) {
+                    $this->fail(
+                        'PICKUP_SLOT_EXPIRED',
+                        'Waktu pengambilan tersebut sudah berakhir.'
+                    );
+                }
+
                 $usedCapacity = Order::query()
                     ->where('pickup_slot_id', $pickupSlot->id)
                     ->where('status', '!=', 'cancelled')

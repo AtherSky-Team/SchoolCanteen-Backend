@@ -46,6 +46,10 @@ class StudentOrderModifierCheckoutTest extends TestCase
     private const OTHER_OPTION =
         'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
 
+
+    private const PICKUP_SLOT =
+        'dddddddd-dddd-4ddd-8ddd-dddddddddddd';
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -54,7 +58,7 @@ class StudentOrderModifierCheckoutTest extends TestCase
             'services.supabase.url' =>
                 'https://supabase.test',
 
-            'services.supabase.anon_key' =>
+            'services.supabase.publishable_key' =>
                 'test-anon-key',
         ]);
 
@@ -978,6 +982,54 @@ class StudentOrderModifierCheckoutTest extends TestCase
                         'Order test',
                 ]
             );
+    }
+
+    public function test_expired_pickup_slot_is_rejected_inside_checkout_transaction(): void
+    {
+        DB::table('pickup_slots')->insert([
+            'id' => self::PICKUP_SLOT,
+            'merchant_id' => self::MERCHANT,
+            'start_at' => now()->subHour(),
+            'end_at' => now()->subMinute(),
+            'capacity' => 10,
+            'is_active' => true,
+        ]);
+
+        $response = $this
+            ->withHeaders($this->authHeaders())
+            ->postJson('/api/v1/student/orders', [
+                'merchant_id' => self::MERCHANT,
+                'pickup_slot_id' => self::PICKUP_SLOT,
+                'items' => [
+                    [
+                        'product_id' => self::PRODUCT,
+                        'quantity' => 1,
+                        'modifier_option_ids' => [
+                            self::OPTION_NORMAL,
+                        ],
+                    ],
+                ],
+                'notes' => 'Expired slot test',
+            ]);
+
+        $response
+            ->assertStatus(409)
+            ->assertJsonPath(
+                'error.code',
+                'PICKUP_SLOT_EXPIRED'
+            );
+
+        $this->assertSame(
+            0,
+            DB::table('orders')->count()
+        );
+
+        $this->assertSame(
+            100000,
+            (int) DB::table('wallets')
+                ->where('id', self::WALLET)
+                ->value('balance')
+        );
     }
 
     public function test_duplicate_product_lines_use_aggregate_stock(): void

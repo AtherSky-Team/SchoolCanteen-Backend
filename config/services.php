@@ -35,9 +35,15 @@ return [
         ],
     ],
 
-        'supabase' => [
+    'supabase' => [
         'url' => env('SUPABASE_URL'),
-        'anon_key' => env('SUPABASE_ANON_KEY'),
+        'publishable_key' => env(
+            'SUPABASE_PUBLISHABLE_KEY',
+            env('SUPABASE_ANON_KEY')
+        ),
+        'auth_cache_seconds' => (int) env('SUPABASE_AUTH_CACHE_SECONDS', 30),
+        'auth_connect_timeout' => (int) env('SUPABASE_AUTH_CONNECT_TIMEOUT', 2),
+        'auth_timeout' => (int) env('SUPABASE_AUTH_TIMEOUT', 5),
     ],
     'midtrans' => [
     'server_key' => env('MIDTRANS_SERVER_KEY'),
