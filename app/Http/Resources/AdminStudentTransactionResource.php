@@ -18,8 +18,26 @@ class AdminStudentTransactionResource extends JsonResource
                 'wallet',
                 function () {
                     return [
-                        'id' => $this->wallet?->user?->id,
-                        'name' => $this->wallet?->user?->name,
+                        'id' =>
+                            $this->wallet?->user?->id,
+
+                        'name' =>
+                            $this->wallet?->user?->name,
+
+                        'phone' =>
+                            $this->wallet?->user?->phone,
+
+                        'avatarUrl' =>
+                            $this->wallet?->user?->avatar_url,
+
+                        'nis' =>
+                            $this->wallet?->user?->studentProfile?->nis,
+
+                        'className' =>
+                            $this->wallet?->user?->studentProfile?->class,
+
+                        'major' =>
+                            $this->wallet?->user?->studentProfile?->major,
                     ];
                 }
             ),

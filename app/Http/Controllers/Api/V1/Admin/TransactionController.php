@@ -19,7 +19,8 @@ class TransactionController extends Controller
 
         $transactions = $query
             ->with([
-                'wallet.user:id,name',
+                'wallet.user:id,name,phone,avatar_url',
+                    'wallet.user.studentProfile:user_id,nis,class,major',
                 'paymentTransaction',
                 'referencedOrder.merchant:id,name,type',
             ])
@@ -66,10 +67,20 @@ class TransactionController extends Controller
 
     public function studentShow(string $transaction)
     {
+        \DB::listen(function ($query) {
+            \Log::info(
+                $query->sql,
+                [
+                    'time' => $query->time,
+                    'bindings' => $query->bindings,
+                ]
+            );
+        });
         $walletTransaction =
             WalletTransaction::query()
                 ->with([
-                    'wallet.user:id,name',
+                    'wallet.user:id,name,phone,avatar_url',
+                    'wallet.user.studentProfile:user_id,nis,class,major',
                     'paymentTransaction',
                     'referencedOrder.merchant:id,name,type',
                 ])
