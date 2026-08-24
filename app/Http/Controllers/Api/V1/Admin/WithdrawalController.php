@@ -356,6 +356,7 @@ class WithdrawalController extends Controller
                             'reference_id',
                             $withdrawalRequest->id
                         )
+                        ->lockForUpdate()
                         ->first();
 
                 if (!$holdTransaction) {
