@@ -158,6 +158,16 @@ class PickupController extends Controller
                 );
             }
 
+            if (
+                (int) $escrow->amount !==
+                (int) $order->total_amount
+            ) {
+                $this->fail(
+                    'ESCROW_AMOUNT_MISMATCH',
+                    'Nominal escrow tidak sesuai total order.'
+                );
+            }
+
             /*
             |--------------------------------------------------------------------------
             | Merchant Wallet
@@ -216,6 +226,29 @@ class PickupController extends Controller
             $order->status = 'completed';
             $order->completed_at = $now;
             $order->save();
+
+            /*
+            |--------------------------------------------------------------------------
+            | Release Escrow Idempotency
+            |--------------------------------------------------------------------------
+            */
+
+            $alreadyReleased =
+                MerchantWalletTransaction::query()
+                    ->where('reference_type', 'order')
+                    ->where('reference_id', $order->id)
+                    ->whereIn('type', [
+                        'pending_release',
+                        'available_release',
+                    ])
+                    ->exists();
+
+            if ($alreadyReleased) {
+                $this->fail(
+                    'ESCROW_ALREADY_RELEASED',
+                    'Dana order sudah pernah dilepas.'
+                );
+            }
 
             /*
             |--------------------------------------------------------------------------
