@@ -90,6 +90,30 @@ class WithdrawalController extends Controller
                 );
             }
 
+
+            $existingWithdrawal =
+                WithdrawalRequest::query()
+                    ->where(
+                        'merchant_id',
+                        $merchant->id
+                    )
+                    ->whereIn(
+                        'status',
+                        [
+                            'waiting',
+                            'approved',
+                            'processed',
+                        ]
+                    )
+                    ->exists();
+
+            if ($existingWithdrawal) {
+                $this->fail(
+                    'WITHDRAWAL_ALREADY_PENDING',
+                    'Masih terdapat withdrawal yang sedang diproses.'
+                );
+            }
+
             if ($wallet->available_balance < $data['amount']) {
                 $this->fail(
                     'INSUFFICIENT_AVAILABLE_BALANCE',
