@@ -190,6 +190,61 @@ class MidtransWebhookController extends Controller
             }
 
             /*
+            /*
+            |--------------------------------------------------------------------------
+            | Amount Validation
+            |--------------------------------------------------------------------------
+            */
+
+            if (
+                (int) $paymentTransaction->gross_amount !==
+                (int) $walletTransaction->amount
+            ) {
+                Log::warning(
+                    'Midtrans amount mismatch',
+                    [
+                        'order_id' => $orderId,
+                        'midtrans_amount' =>
+                            $paymentTransaction->gross_amount,
+                        'database_amount' =>
+                            $walletTransaction->amount,
+                    ]
+                );
+
+                abort(
+                    response()->json([
+                        'success' => false,
+                        'error' => [
+                            'code' => 'AMOUNT_MISMATCH',
+                            'message' =>
+                                'Nominal pembayaran tidak sesuai.',
+                        ],
+                    ], 400)
+                );
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | Invalid Status Transition Protection
+            |--------------------------------------------------------------------------
+            */
+
+            if (
+                $walletTransaction->status === 'failed'
+            ) {
+                Log::warning(
+                    'Invalid wallet transaction transition',
+                    [
+                        'order_id' => $orderId,
+                        'status' =>
+                            $walletTransaction->status,
+                    ]
+                );
+
+                return;
+            }
+
+
             |--------------------------------------------------------------------------
             | Successful Payment
             |--------------------------------------------------------------------------
