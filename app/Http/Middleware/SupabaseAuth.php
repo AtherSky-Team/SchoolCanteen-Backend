@@ -122,7 +122,17 @@ class SupabaseAuth
             );
         }
 
-        $profile = Profile::query()->find($supabaseUser['id']);
+        $profileCacheKey =
+            "profile:{$supabaseUser['id']}";
+
+        $profile = Cache::remember(
+            $profileCacheKey,
+            60,
+            function () use ($supabaseUser) {
+                return Profile::query()
+                    ->find($supabaseUser['id']);
+            }
+        );
 
         if (! $profile) {
             return $this->error(
