@@ -10,6 +10,7 @@ use App\Models\Merchant;
 use App\Models\Product;
 use App\Models\ProductModifierGroup;
 use App\Models\ProductModifierOption;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -82,6 +83,8 @@ class ProductModifierOptionController extends Controller
                     ] ?? true;
 
                 $option->save();
+
+                $this->clearProductCache($option->group->product_id);
 
                 return response()->json([
                     'success' =>
@@ -188,6 +191,8 @@ class ProductModifierOptionController extends Controller
 
                 $modifierOption->save();
 
+                $this->clearProductCache($modifierOption->group->product_id);
+
                 return response()->json([
                     'success' =>
                         true,
@@ -261,7 +266,9 @@ class ProductModifierOptionController extends Controller
                     ], 404);
                 }
 
-                $modifierOption->delete();
+                $this->clearProductCache($modifierOption->group->product_id);
+
+            $modifierOption->delete();
 
                 return response()->json([
                     'success' =>
@@ -382,4 +389,15 @@ class ProductModifierOptionController extends Controller
                 $group,
         ];
     }
+    private function clearProductCache(string $productId): void
+    {
+        Cache::forget(
+            "public-product-detail:v1:{$productId}:light"
+        );
+
+        Cache::forget(
+            "public-product-detail:v1:{$productId}:related"
+        );
+    }
+
 }
