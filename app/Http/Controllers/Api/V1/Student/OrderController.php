@@ -777,6 +777,7 @@ class OrderController extends Controller
                 $usedCapacity = Order::query()
                     ->where('pickup_slot_id', $pickupSlot->id)
                     ->where('status', '!=', 'cancelled')
+                    ->lockForUpdate()
                     ->count();
 
                 if ($usedCapacity >= $pickupSlot->capacity) {
@@ -801,6 +802,37 @@ class OrderController extends Controller
                 );
             }
 
+
+            /*
+            |--------------------------------------------------------------------------
+            | Duplicate Checkout Protection
+            |--------------------------------------------------------------------------
+            */
+
+            $existingOrder = Order::query()
+                ->where('user_id', $profile->id)
+                ->where('merchant_id', $merchant->id)
+                ->where('total_amount', $totalAmount)
+                ->whereIn('status', [
+                    'waiting',
+                    'confirmed',
+                    'preparing',
+                    'ready',
+                ])
+                ->where(
+                    'created_at',
+                    '>=',
+                    now()->subMinutes(2)
+                )
+                ->lockForUpdate()
+                ->first();
+
+            if ($existingOrder) {
+                $this->fail(
+                    'DUPLICATE_ORDER',
+                    'Pesanan yang sama baru saja dibuat.'
+                );
+            }
 
             /*
             |--------------------------------------------------------------------------
