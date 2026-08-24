@@ -15,7 +15,7 @@ return new class extends Migration
         Schema::create('order_items', function (Blueprint $table) {
             $table->uuid('id')
                 ->primary()
-                ->default(DB::raw('gen_random_uuid()'));
+                ;
 
             $table->uuid('order_id');
             $table->uuid('product_id')->nullable();

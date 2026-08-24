@@ -15,7 +15,7 @@ return new class extends Migration
         Schema::create('merchants', function (Blueprint $table) {
             $table->uuid('id')
                 ->primary()
-                ->default(DB::raw('gen_random_uuid()'));
+                ;
 
             $table->uuid('owner_user_id');
 

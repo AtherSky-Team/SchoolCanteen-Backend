@@ -26,13 +26,15 @@ return new class extends Migration
             $table->index('role');
         });
 
-        DB::statement('
-            ALTER TABLE profiles
-            ADD CONSTRAINT profiles_id_foreign
-            FOREIGN KEY (id)
-            REFERENCES auth.users(id)
-            ON DELETE CASCADE
-        ');
+        if (DB::getDriverName() === 'pgsql') {
+            DB::statement('
+                ALTER TABLE profiles
+                ADD CONSTRAINT profiles_id_foreign
+                FOREIGN KEY (id)
+                REFERENCES auth.users(id)
+                ON DELETE CASCADE
+            ');
+        }
     }
 
     /**

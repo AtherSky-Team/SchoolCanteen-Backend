@@ -135,6 +135,12 @@ class SupabaseAuth
         );
 
         if (! $profile) {
+            dump([
+                'supabase_id' => $supabaseUser['id'] ?? null,
+                'profile_count' => Profile::count(),
+                'profile_ids' => Profile::pluck('id')->toArray(),
+            ]);
+
             return $this->error(
                 'PROFILE_NOT_FOUND',
                 'Profile pengguna tidak ditemukan.',

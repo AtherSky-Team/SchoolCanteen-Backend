@@ -2,15 +2,16 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Schema;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class ApiRoleOwnershipRegressionTest extends TestCase
 {
+    use RefreshDatabase;
+
     private const STUDENT_A =
         '11111111-1111-4111-8111-111111111111';
 
@@ -49,162 +50,44 @@ class ApiRoleOwnershipRegressionTest extends TestCase
             'services.supabase.url' =>
                 'https://supabase.test',
 
-            'services.supabase.anon_key' =>
+            'services.supabase.publishable_key' =>
                 'test-anon-key',
         ]);
 
         Http::preventStrayRequests();
 
-        $this->createTestSchema();
+        Route::middleware([
+            'supabase.auth',
+            'role:student',
+        ])->get('/api/v1/student/dashboard', function () {
+            return response()->json([
+                'success' => true,
+            ]);
+        });
+
+        Route::middleware([
+            'supabase.auth',
+            'role:merchant',
+        ])->get('/api/v1/merchant/products', function () {
+            return response()->json([
+                'success' => true,
+            ]);
+        });
+
+        Route::middleware([
+            'supabase.auth',
+            'role:admin',
+        ])->get('/api/v1/admin/dashboard', function () {
+            return response()->json([
+                'success' => true,
+            ]);
+        });
+
         $this->seedTestData();
-    }
 
-    private function createTestSchema(): void
-    {
-        Schema::dropIfExists('products');
-        Schema::dropIfExists('pickups');
-        Schema::dropIfExists('orders');
-        Schema::dropIfExists('merchants');
-        Schema::dropIfExists('profiles');
-
-        Schema::create(
-            'profiles',
-            function (Blueprint $table) {
-                $table->uuid('id')->primary();
-
-                $table->string('name');
-                $table->string('phone')->nullable();
-                $table->string('avatar_url')->nullable();
-
-                $table->string('role');
-
-                $table->timestamps();
-            }
-        );
-
-        Schema::create(
-            'merchants',
-            function (Blueprint $table) {
-                $table->uuid('id')->primary();
-
-                $table->uuid('owner_user_id');
-
-                $table->string('name');
-                $table->string('type')->nullable();
-
-                $table->boolean('is_active')
-                    ->default(true);
-
-                $table->boolean('is_open')
-                    ->default(true);
-
-                $table->timestamps();
-            }
-        );
-
-        Schema::create(
-            'orders',
-            function (Blueprint $table) {
-                $table->uuid('id')->primary();
-
-                $table->uuid('user_id');
-                $table->uuid('merchant_id');
-
-                $table->uuid('pickup_slot_id')
-                    ->nullable();
-
-                $table->string('order_code');
-                $table->string('status');
-
-                $table->unsignedBigInteger(
-                    'total_amount'
-                );
-
-                $table->text('notes')
-                    ->nullable();
-
-                $table->timestamp(
-                    'confirmed_at'
-                )->nullable();
-
-                $table->timestamp(
-                    'preparing_at'
-                )->nullable();
-
-                $table->timestamp(
-                    'ready_at'
-                )->nullable();
-
-                $table->timestamp(
-                    'completed_at'
-                )->nullable();
-
-                $table->timestamp(
-                    'cancelled_at'
-                )->nullable();
-
-                $table->timestamps();
-            }
-        );
-
-        Schema::create(
-            'pickups',
-            function (Blueprint $table) {
-                $table->uuid('id')->primary();
-
-                $table->uuid('order_id');
-
-                $table->string('pickup_token');
-                $table->string('pickup_code');
-
-                $table->string('status');
-
-                $table->uuid('verified_by')
-                    ->nullable();
-
-                $table->timestamp(
-                    'verified_at'
-                )->nullable();
-
-                $table->timestamps();
-            }
-        );
-
-        Schema::create(
-            'products',
-            function (Blueprint $table) {
-                $table->uuid('id')->primary();
-
-                $table->uuid('merchant_id');
-
-                $table->uuid('category_id')
-                    ->nullable();
-
-                $table->string('name');
-                $table->string('slug');
-
-                $table->text('description')
-                    ->nullable();
-
-                $table->unsignedBigInteger(
-                    'price'
-                );
-
-                $table->integer('stock');
-
-                $table->string('image_url')
-                    ->nullable();
-
-                $table->string(
-                    'image_public_id'
-                )->nullable();
-
-                $table->boolean('is_active')
-                    ->default(true);
-
-                $table->softDeletes();
-                $table->timestamps();
-            }
+        dump(
+            DB::table('profiles')->count(),
+            DB::table('profiles')->get()->toArray()
         );
     }
 
@@ -300,7 +183,7 @@ class ApiRoleOwnershipRegressionTest extends TestCase
 
         return [
             'Authorization' =>
-                'Bearer test-access-token',
+                'Bearer test-access-token-'.$profileId,
 
             'Accept' =>
                 'application/json',
@@ -316,7 +199,7 @@ class ApiRoleOwnershipRegressionTest extends TestCase
                 )
             )
             ->getJson(
-                '/api/v1/merchant/test'
+                '/api/v1/merchant/products'
             );
 
         $response
@@ -336,7 +219,7 @@ class ApiRoleOwnershipRegressionTest extends TestCase
                 )
             )
             ->getJson(
-                '/api/v1/admin/test'
+                '/api/v1/admin/dashboard'
             );
 
         $response
@@ -356,7 +239,7 @@ class ApiRoleOwnershipRegressionTest extends TestCase
                 )
             )
             ->getJson(
-                '/api/v1/student/test'
+                '/api/v1/student/dashboard'
             );
 
         $response
@@ -376,7 +259,7 @@ class ApiRoleOwnershipRegressionTest extends TestCase
                 )
             )
             ->getJson(
-                '/api/v1/admin/test'
+                '/api/v1/admin/dashboard'
             );
 
         $response
@@ -396,7 +279,7 @@ class ApiRoleOwnershipRegressionTest extends TestCase
                 )
             )
             ->getJson(
-                '/api/v1/student/test'
+                '/api/v1/student/dashboard'
             );
 
         $response
@@ -416,7 +299,7 @@ class ApiRoleOwnershipRegressionTest extends TestCase
                 )
             )
             ->getJson(
-                '/api/v1/merchant/test'
+                '/api/v1/merchant/products'
             );
 
         $response

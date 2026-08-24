@@ -43,7 +43,7 @@ class AdminTransactionPerformanceTest extends TestCase
         Cache::flush();
         Http::preventStrayRequests();
 
-        $this->createSchema();
+        #$this->createSchema();
         $this->seedBaseData();
     }
 

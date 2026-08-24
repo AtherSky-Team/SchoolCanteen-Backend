@@ -2,10 +2,8 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Schema;
 use Tests\TestCase;
 
 class StudentDashboardProfileTest extends TestCase
@@ -42,83 +40,7 @@ class StudentDashboardProfileTest extends TestCase
 
         Http::preventStrayRequests();
 
-        $this->createSchema();
         $this->seedProfiles();
-    }
-
-    private function createSchema(): void
-    {
-        Schema::create(
-            'profiles',
-            function (Blueprint $table) {
-                $table->uuid('id')->primary();
-
-                $table->string('name');
-                $table->string('phone')->nullable();
-
-                $table->string('avatar_url')
-                    ->nullable();
-
-                $table->string('role');
-
-                $table->timestamps();
-            }
-        );
-
-        Schema::create(
-            'student_profiles',
-            function (Blueprint $table) {
-                $table->uuid('user_id')->primary();
-
-                $table->string('nis');
-                $table->string('class');
-
-                $table->string('major')
-                    ->nullable();
-
-                $table->timestamps();
-            }
-        );
-
-        Schema::create(
-            'wallets',
-            function (Blueprint $table) {
-                $table->uuid('id')->primary();
-
-                $table->uuid('user_id');
-
-                $table->unsignedBigInteger(
-                    'balance'
-                )->default(0);
-
-                $table->boolean('is_active')
-                    ->default(true);
-
-                $table->timestamps();
-            }
-        );
-
-        Schema::create(
-            'orders',
-            function (Blueprint $table) {
-                $table->uuid('id')->primary();
-
-                $table->uuid('user_id');
-                $table->uuid('merchant_id')
-                    ->nullable();
-
-                $table->string('order_code')
-                    ->nullable();
-
-                $table->string('status');
-
-                $table->unsignedBigInteger(
-                    'total_amount'
-                )->default(0);
-
-                $table->timestamps();
-            }
-        );
     }
 
     private function seedProfiles(): void
@@ -196,54 +118,169 @@ class StudentDashboardProfileTest extends TestCase
     {
         $this->seedWallets();
 
+        DB::table('merchants')->insert([
+            [
+                'id' => self::MERCHANT,
+                'owner_user_id' => self::MERCHANT,
+                'name' => 'Merchant Test',
+                'type' => 'canteen',
+                'is_active' => true,
+                'is_open' => true,
+            ],
+        ]);
+
         DB::table('orders')->insert([
             [
                 'id' =>
                     '10000000-0000-4000-8000-000000000001',
-                'user_id' => self::STUDENT_A,
-                'status' => 'waiting',
+
+                'order_code' =>
+                    'SC-TEST-001',
+
+                'user_id' =>
+                    self::STUDENT_A,
+
+                'merchant_id' =>
+                    self::MERCHANT,
+
+                'status' =>
+                    'waiting',
+
+                'total_amount' =>
+                    10000,
             ],
             [
                 'id' =>
                     '10000000-0000-4000-8000-000000000002',
-                'user_id' => self::STUDENT_A,
-                'status' => 'confirmed',
+
+                'order_code' =>
+                    'SC-TEST-002',
+
+                'user_id' =>
+                    self::STUDENT_A,
+
+                'merchant_id' =>
+                    self::MERCHANT,
+
+                'status' =>
+                    'confirmed',
+
+                'total_amount' =>
+                    10000,
             ],
             [
                 'id' =>
                     '10000000-0000-4000-8000-000000000003',
-                'user_id' => self::STUDENT_A,
-                'status' => 'preparing',
+
+                'order_code' =>
+                    'SC-TEST-003',
+
+                'user_id' =>
+                    self::STUDENT_A,
+
+                'merchant_id' =>
+                    self::MERCHANT,
+
+                'status' =>
+                    'preparing',
+
+                'total_amount' =>
+                    10000,
             ],
             [
                 'id' =>
                     '10000000-0000-4000-8000-000000000004',
-                'user_id' => self::STUDENT_A,
-                'status' => 'ready',
+
+                'order_code' =>
+                    'SC-TEST-004',
+
+                'user_id' =>
+                    self::STUDENT_A,
+
+                'merchant_id' =>
+                    self::MERCHANT,
+
+                'status' =>
+                    'ready',
+
+                'total_amount' =>
+                    10000,
             ],
             [
                 'id' =>
                     '10000000-0000-4000-8000-000000000005',
-                'user_id' => self::STUDENT_A,
-                'status' => 'completed',
+
+                'order_code' =>
+                    'SC-TEST-005',
+
+                'user_id' =>
+                    self::STUDENT_A,
+
+                'merchant_id' =>
+                    self::MERCHANT,
+
+                'status' =>
+                    'completed',
+
+                'total_amount' =>
+                    10000,
             ],
             [
                 'id' =>
                     '10000000-0000-4000-8000-000000000006',
-                'user_id' => self::STUDENT_A,
-                'status' => 'cancelled',
+
+                'order_code' =>
+                    'SC-TEST-006',
+
+                'user_id' =>
+                    self::STUDENT_A,
+
+                'merchant_id' =>
+                    self::MERCHANT,
+
+                'status' =>
+                    'cancelled',
+
+                'total_amount' =>
+                    10000,
             ],
             [
                 'id' =>
                     '20000000-0000-4000-8000-000000000001',
-                'user_id' => self::STUDENT_B,
-                'status' => 'waiting',
+
+                'order_code' =>
+                    'SC-TEST-007',
+
+                'user_id' =>
+                    self::STUDENT_B,
+
+                'merchant_id' =>
+                    self::MERCHANT,
+
+                'status' =>
+                    'waiting',
+
+                'total_amount' =>
+                    10000,
             ],
             [
                 'id' =>
                     '20000000-0000-4000-8000-000000000002',
-                'user_id' => self::STUDENT_B,
-                'status' => 'completed',
+
+                'order_code' =>
+                    'SC-TEST-008',
+
+                'user_id' =>
+                    self::STUDENT_B,
+
+                'merchant_id' =>
+                    self::MERCHANT,
+
+                'status' =>
+                    'completed',
+
+                'total_amount' =>
+                    10000,
             ],
         ]);
 

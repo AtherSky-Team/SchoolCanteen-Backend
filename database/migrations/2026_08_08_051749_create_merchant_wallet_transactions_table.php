@@ -15,7 +15,7 @@ return new class extends Migration
         Schema::create('merchant_wallet_transactions', function (Blueprint $table) {
             $table->uuid('id')
                 ->primary()
-                ->default(DB::raw('gen_random_uuid()'));
+                ;
 
             $table->uuid('merchant_wallet_id');
 

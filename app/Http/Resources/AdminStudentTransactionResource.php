@@ -14,33 +14,28 @@ class AdminStudentTransactionResource extends JsonResource
 
             'ledger' => 'student_wallet',
 
-            'student' => $this->whenLoaded(
-                'wallet',
-                function () {
-                    return [
-                        'id' =>
-                            $this->wallet?->user?->id,
+            'student' => [
+                'id' =>
+                    $this->wallet?->user?->id,
 
-                        'name' =>
-                            $this->wallet?->user?->name,
+                'name' =>
+                    $this->wallet?->user?->name,
 
-                        'phone' =>
-                            $this->wallet?->user?->phone,
+                'phone' =>
+                    $this->wallet?->user?->phone,
 
-                        'avatarUrl' =>
-                            $this->wallet?->user?->avatar_url,
+                'avatar_url' =>
+                    $this->wallet?->user?->avatar_url,
 
-                        'nis' =>
-                            $this->wallet?->user?->studentProfile?->nis,
+                'nis' =>
+                    $this->wallet?->user?->studentProfile?->nis,
 
-                        'className' =>
-                            $this->wallet?->user?->studentProfile?->class,
+                'class' =>
+                    $this->wallet?->user?->studentProfile?->class,
 
-                        'major' =>
-                            $this->wallet?->user?->studentProfile?->major,
-                    ];
-                }
-            ),
+                'major' =>
+                    $this->wallet?->user?->studentProfile?->major,
+            ],
 
             'merchant' => $this->whenLoaded(
                 'referencedOrder',
