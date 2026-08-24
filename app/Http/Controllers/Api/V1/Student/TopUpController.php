@@ -34,6 +34,7 @@ class TopUpController extends Controller
 
         $wallet = Wallet::query()
             ->where('user_id', $profile->id)
+            ->lockForUpdate()
             ->first();
 
         if (!$wallet) {
