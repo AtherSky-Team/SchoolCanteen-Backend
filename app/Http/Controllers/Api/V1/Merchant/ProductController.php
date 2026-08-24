@@ -10,6 +10,7 @@ use App\Http\Resources\MerchantProductResource;
 use App\Models\Category;
 use App\Models\Merchant;
 use App\Models\Product;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -151,6 +152,8 @@ class ProductController extends Controller
 
         try {
             $product->save();
+
+                $this->clearProductCache($product->id);
         } catch (\Throwable $e) {
             if ($image) {
                 $cloudinary->deleteImage(
@@ -403,6 +406,21 @@ class ProductController extends Controller
             'success' => true,
             'message' => 'Produk berhasil dihapus.',
         ]);
+    }
+
+    private function clearProductCache(string $productId): void
+    {
+        Cache::forget(
+            "public-product-detail:v1:{$productId}:light"
+        );
+
+        Cache::forget(
+            "public-product-detail:v1:{$productId}:related"
+        );
+
+        Cache::forget(
+            "public-catalog:v1"
+        );
     }
 
 }
