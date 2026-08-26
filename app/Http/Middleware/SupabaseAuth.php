@@ -130,7 +130,8 @@ class SupabaseAuth
             60,
             function () use ($supabaseUser) {
                 return Profile::query()
-                    ->find($supabaseUser['id']);
+                    ->find($supabaseUser['id'])
+                    ?->toArray();
             }
         );
 
@@ -147,6 +148,10 @@ class SupabaseAuth
                 404
             );
         }
+
+        $profile = Profile::hydrate([
+            $profile
+        ])->first();
 
         $request->attributes->set('supabase_user', $supabaseUser);
         $request->attributes->set('profile', $profile);
