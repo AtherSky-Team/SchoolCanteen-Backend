@@ -15,6 +15,7 @@ class Wallet extends Model
     public $incrementing = false;
 
     protected $fillable = [
+        'id',
         'user_id',
         'balance',
         'is_active',

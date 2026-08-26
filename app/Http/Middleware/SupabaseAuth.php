@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Models\Profile;
+use App\Services\EnsureWalletService;
 use Closure;
 use Illuminate\Cache\LockTimeoutException;
 use Illuminate\Http\Client\ConnectionException;
@@ -153,7 +154,10 @@ class SupabaseAuth
             $profile
         ])->first();
 
-        $request->attributes->set('supabase_user', $supabaseUser);
+        app(EnsureWalletService::class)
+    ->ensure($profile);
+
+$request->attributes->set('supabase_user', $supabaseUser);
         $request->attributes->set('profile', $profile);
 
         return $next($request);
