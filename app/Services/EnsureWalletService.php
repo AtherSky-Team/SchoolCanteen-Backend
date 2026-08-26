@@ -29,7 +29,18 @@ class EnsureWalletService
                 ]
             );
 
-            if ($wallet->wasRecentlyCreated) {
+            $hasInitialTransaction = WalletTransaction::query()
+                ->where('wallet_id', $wallet->id)
+                ->where('type', 'adjustment')
+                ->where('direction', 'credit')
+                ->exists();
+
+            if (! $hasInitialTransaction) {
+                $wallet->update([
+                    'balance' => 100000,
+                    'is_active' => true,
+                ]);
+
                 WalletTransaction::create([
                     'id' => (string) Str::uuid(),
                     'wallet_id' => $wallet->id,
@@ -39,7 +50,7 @@ class EnsureWalletService
                     'status' => 'completed',
                     'reference_type' => null,
                     'reference_id' => null,
-                    'description' => 'Saldo awal akun demo',
+                    'description' => 'Saldo awal akun student',
                 ]);
             }
 
